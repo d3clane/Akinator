@@ -18,9 +18,9 @@ TARGET = akinator
 OBJECTDIR = build
 DOXYFILE = Others/Doxyfile
 
-HEADERS  = Colors.h Errors.h Log.h Tree.h
+HEADERS  = Colors.h Errors.h Log.h Tree.h Akinator.h
 
-FILESCPP = main.cpp Errors.cpp Log.cpp Tree.cpp
+FILESCPP = main.cpp Errors.cpp Log.cpp Tree.cpp Akinator.cpp
 
 objects = $(FILESCPP:%.cpp=$(OBJECTDIR)/%.o)
 
