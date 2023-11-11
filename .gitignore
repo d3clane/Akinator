@@ -1,0 +1,5 @@
+build/
+imgs/
+akinator
+*.html
+*.dot
