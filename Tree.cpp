@@ -8,8 +8,6 @@
 //TODO: TreeVerify
 
 static void TreePrintPrefixFormat (TreeNodeType* node, FILE* outStream);
-static void TreePrintInfixFormat  (TreeNodeType* node, FILE* outStream);
-static void TreePrintPostfixFormat(TreeNodeType* node, FILE* outStream);
 
 static void TreeNodeDtor(TreeNodeType* node);
 static void TreeDtor    (TreeNodeType* node);
@@ -18,13 +16,14 @@ static void TreeNodeInit(TreeNodeType* node, const char* value,
                                              TreeNodeType* left, 
                                              TreeNodeType* right);
 
-static TreeNodeType* TreeReadPrefixFormat(FILE* inStream);
+static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr);
 
-//TODO: снести depth
 static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile);
 static void TreeGraphicDump   (TreeNodeType* node, FILE* outDotFile);
+static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg);
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
+static const char* ReadTreeNodeValue(char* target, const char* source);
 
 TreeErrors TreeCtor(TreeType* tree, size_t treeSize, TreeNodeType* root)
 {
@@ -137,24 +136,6 @@ void TreePrintPrefixFormat(TreeType* tree, FILE* outStream)
                    Log    (           "\n");
 }
 
-void TreePrintInfixFormat(TreeType* tree, FILE* outStream)
-{
-    assert(tree);
-    assert(outStream);
-    
-    TreePrintInfixFormat(tree->root, outStream);
-    fprintf(outStream, "\n");
-}
-
-void TreePrintPostfixFormat(TreeType* tree, FILE* outStream)
-{
-    assert(tree);
-    assert(outStream);
-    
-    TreePrintPostfixFormat(tree->root, outStream);
-    fprintf(outStream, "\n");
-}
-
 static void TreePrintPrefixFormat(TreeNodeType* node, FILE* outStream)
 {
     if (node == nullptr)
@@ -166,8 +147,8 @@ static void TreePrintPrefixFormat(TreeNodeType* node, FILE* outStream)
     if (outStream) fprintf(outStream, "(");
                    Log    (           "("); //not in if
 
-    if (outStream) fprintf(outStream, "%s ", node->value);
-                   Log    (           "%s ", node->value); //not in if
+    if (outStream) fprintf(outStream, "\"%s\" ", node->value);
+                   Log    (           "\"%s\" ", node->value); //not in if
 
     TreePrintPrefixFormat(node->left, outStream);
     TreePrintPrefixFormat(node->right, outStream);
@@ -176,87 +157,91 @@ static void TreePrintPrefixFormat(TreeNodeType* node, FILE* outStream)
                    Log    (           ")"); //not in if
 }
 
-static void TreePrintInfixFormat(TreeNodeType* node, FILE* outStream)
-{
-    if (node == nullptr)
-    {
-        fprintf(outStream, "nil ");
-        return;
-    }
-
-    //TODO: 
-    fprintf(outStream, "(");
-
-    TreePrintInfixFormat(node->left, outStream);
-    fprintf(outStream, "%s ", node->value);
-    TreePrintInfixFormat(node->right, outStream);
-
-    fprintf(outStream, ")");
-}
-
-static void TreePrintPostfixFormat(TreeNodeType* node, FILE* outStream)
-{
-    if (node == nullptr)
-    {
-        fprintf(outStream, "nil ");
-        return;
-    }
-
-    fprintf(outStream, "(");
-    //TODO: 
-    TreePrintPostfixFormat(node->left, outStream);
-    TreePrintPostfixFormat(node->right, outStream);
-    fprintf(outStream, "%s ", node->value);
-
-    fprintf(outStream, ")");
-}
-
 //TODO: renaming
 void TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
 {
     assert(tree);
     assert(inStream);
 
-    tree->root = TreeReadPrefixFormat(inStream);
+    char* inputTree      = nullptr;
+    size_t inputTreeSize = 0;
+    getline(&inputTree, &inputTreeSize, inStream);
+
+    //TODO: обработчик ошибки
+
+    if (inputTree == nullptr)
+        return;
+
+    const char* inputTreeEndPtr = inputTree;
+    tree->root = TreeReadPrefixFormat(inputTree, &inputTreeEndPtr);
+
+    free(inputTree);
 }
 
-static TreeNodeType* TreeReadPrefixFormat(FILE* inStream)
+static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr)
 {
-    assert(inStream);
+    assert(string);
 
-    int symbol = 0;
-    while (true)
-    {
-        symbol = getc(inStream);
+    const char* stringPtr = string;
 
-        if (!isspace(symbol) || symbol == EOF)
-            break;
-    }
-
-    static const size_t     maxInputStringLength  = 128;
-    static char inputString[maxInputStringLength] = "";
+    //TODO: обернуть в другую функцию пропуска символов
+    while (isspace(*stringPtr) && *stringPtr != '\0')
+        ++stringPtr;
+    static const size_t       maxInputStringLength  = 128;
+    static char treeNodeValue[maxInputStringLength] =  "";
 
     TreeNodeType* node = nullptr;
 
+    int symbol = *stringPtr;
+    stringPtr++;
     if (symbol == '(')
     {
-        fscanf(inStream, "%s", inputString);
-        TreeNodeCtor(&node, inputString);
+        stringPtr = ReadTreeNodeValue(treeNodeValue, stringPtr);
+        TreeNodeCtor(&node, treeNodeValue);
     }
     else
     {
-        fscanf(inStream, "%*s"); //skipping nill
+        int shift = 0;
+        sscanf(stringPtr, "%*s%n", &shift);
+        stringPtr += shift;
+
+        *stringEndPtr = stringPtr;
         return nullptr;
     }
 
-    TreeNodeType* left  = TreeReadPrefixFormat(inStream);
-    TreeNodeType* right = TreeReadPrefixFormat(inStream);
+    TreeNodeType* left  = TreeReadPrefixFormat(stringPtr, &stringPtr);
+    TreeNodeType* right = TreeReadPrefixFormat(stringPtr, &stringPtr);
 
-    while (getc(inStream) != ')');
+    while (*stringPtr != ')') ++stringPtr;
+    ++stringPtr;
 
     TreeNodeSetEdges(node, left, right);
 
+    *stringEndPtr = stringPtr;
     return node;
+}
+
+static const char* ReadTreeNodeValue(char* target, const char* source)
+{
+    assert(target);
+    assert(source);
+
+    if (*source != '\"')
+    {
+        int shift = 0;
+        sscanf(source, "%s%n", target, &shift);
+
+        return source + shift;
+    }
+
+    const char* stringEnd = strchr(source + 1, '\"');
+    assert(stringEnd != nullptr);
+
+    strncpy(target, source + 1, (size_t)(stringEnd - source));
+    target[(size_t)(stringEnd - source) - 1] = '\0';
+
+
+    return stringEnd + 1;
 }
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right)
@@ -278,7 +263,7 @@ static inline void TreeNodeInit(TreeNodeType* node, const char* value,
     node->right = right;
 }
 
-static inline void CreateImgInLogFile(const size_t imgIndex)
+static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg)
 {
     static const size_t maxImgNameLength  = 64;
     static char imgName[maxImgNameLength] = "";
@@ -292,6 +277,12 @@ static inline void CreateImgInLogFile(const size_t imgIndex)
 
     snprintf(commandName, maxCommandLength, "<img src = \"%s\">\n", imgName);    
     Log(commandName);
+
+    if (openImg)
+    {
+        snprintf(commandName, maxCommandLength, "open %s", imgName);
+        system(commandName);
+    }
 }
 
 static inline void DotFileBegin(FILE* outDotFile)
@@ -304,7 +295,7 @@ static inline void DotFileEnd(FILE* outDotFile)
     fprintf(outDotFile, "\n}\n");
 }
 
-void TreeGraphicDump(TreeType* tree)
+void TreeGraphicDump(TreeType* tree, bool openImg)
 {
     assert(tree);
 
@@ -325,7 +316,7 @@ void TreeGraphicDump(TreeType* tree)
     fclose(outDotFile);
 
     static size_t imgIndex = 0;
-    CreateImgInLogFile(imgIndex);
+    CreateImgInLogFile(imgIndex, openImg);
     imgIndex++;
 }
 
@@ -337,7 +328,7 @@ static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile)
     fprintf(outDotFile, "node%p"
                         "[shape=Mrecord, style=filled, fillcolor=\"#7293ba\","
                         "label = \"{ %s |"  
-                        "{ <left> left | <right> right } } \" ," 
+                        "{ <left> yes | <right> no } } \" ," 
                         "color = \"#008080\"];\n",
                         node, node->value); 
 

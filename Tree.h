@@ -34,17 +34,14 @@ TreeErrors TreeNodeCtor(TreeNodeType** node, const char* value, TreeNodeType* le
 TreeErrors TreeNodeSetValue(TreeNodeType* node, const char* value);
 TreeErrors TreeLeafSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 
-void TreePrintPrefixFormat (TreeType* tree, FILE* outStream = stdout);
-void TreePrintPostfixFormat(TreeType* tree, FILE* outStream = stdout); 
-void TreePrintInfixFormat  (TreeType* tree, FILE* outStream = stdout); 
-
-void TreeReadPrefixFormat(TreeType* tree, FILE* inStream = stdin);
+void TreePrintPrefixFormat(TreeType* tree, FILE* outStream = stdout);
+void TreeReadPrefixFormat (TreeType* tree, FILE* inStream = stdin);
 
 #define TREE_TEXT_DUMP(tree) TreeTextDump((tree), __FILE__, __func__, __LINE__)
 void TreeTextDump(TreeType* tree, const char* fileName, 
                                   const char* funcName,
                                   const int   line);
-void TreeGraphicDump(TreeType* tree);
+void TreeGraphicDump(TreeType* tree, bool openImg = false);
 
 #define TREE_DUMP(tree) TreeDump((tree), __FILE__, __func__, __LINE__)
 void TreeDump(TreeType* tree, const char* fileName,
