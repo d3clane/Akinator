@@ -5,6 +5,8 @@
 #include "Tree.h"
 #include "Log.h"
 
+//TODO: TreeVerify
+
 static void TreePrintPrefixFormat (TreeNodeType* node, FILE* outStream);
 static void TreePrintInfixFormat  (TreeNodeType* node, FILE* outStream);
 static void TreePrintPostfixFormat(TreeNodeType* node, FILE* outStream);
