@@ -31,6 +31,8 @@ TreeErrors TreeDtor(TreeType* tree);
 
 TreeErrors TreeNodeCtor(TreeNodeType** node, const char* value, TreeNodeType* left  = nullptr, 
                                                                 TreeNodeType* right = nullptr);
+TreeErrors TreeNodeSetValue(TreeNodeType* node, const char* value);
+TreeErrors TreeLeafSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 
 void TreePrintPrefixFormat (TreeType* tree, FILE* outStream = stdout);
 void TreePrintPostfixFormat(TreeType* tree, FILE* outStream = stdout); 

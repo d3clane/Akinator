@@ -21,8 +21,8 @@ static void TreeNodeInit(TreeNodeType* node, const char* value,
 static TreeNodeType* TreeReadPrefixFormat(FILE* inStream);
 
 //TODO: снести depth
-static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile, int depth = 0);
-static void TreeGraphicDump   (TreeNodeType* node, FILE* outDotFile, int depth = 0);
+static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile);
+static void TreeGraphicDump   (TreeNodeType* node, FILE* outDotFile);
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 
@@ -53,6 +53,35 @@ TreeErrors TreeDtor(TreeType* tree)
     TreeDtor(tree->root);
     tree->root = nullptr;
     tree->size = 0;
+
+    return TreeErrors::NO_ERR;
+}
+
+TreeErrors TreeNodeSetValue(TreeNodeType* node, const char* value)
+{
+    assert(node);
+
+    char* newValueStorage = strdup(value);
+
+    if (newValueStorage == nullptr)
+        return TreeErrors::MEM_ERR;
+
+    if (node->value != nullptr)
+        free(node->value);
+    
+    node->value = newValueStorage;
+
+    return TreeErrors::NO_ERR;
+}
+
+TreeErrors TreeLeafSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right)
+{
+    assert(node);
+    assert(node->left  == nullptr);
+    assert(node->right == nullptr);
+
+    node->left  = left;
+    node->right = right;
 
     return TreeErrors::NO_ERR;
 }
@@ -96,7 +125,6 @@ static void TreeNodeDtor(TreeNodeType* node)
     node->right = nullptr;
 
     free(node);
-
 }
 
 void TreePrintPrefixFormat(TreeType* tree, FILE* outStream)
@@ -301,7 +329,7 @@ void TreeGraphicDump(TreeType* tree)
     imgIndex++;
 }
 
-static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile, int depth)
+static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile)
 {
     if (node == nullptr)
         return;
@@ -313,11 +341,11 @@ static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile, int depth)
                         "color = \"#008080\"];\n",
                         node, node->value); 
 
-    DotFileCreateNodes(node->left,  outDotFile, depth + 1);
-    DotFileCreateNodes(node->right, outDotFile, depth + 1);
+    DotFileCreateNodes(node->left,  outDotFile);
+    DotFileCreateNodes(node->right, outDotFile);
 }
 
-static void TreeGraphicDump(TreeNodeType* node, FILE* outDotFile, int depth)
+static void TreeGraphicDump(TreeNodeType* node, FILE* outDotFile)
 {
     if (node == nullptr)
     {
@@ -328,10 +356,10 @@ static void TreeGraphicDump(TreeNodeType* node, FILE* outDotFile, int depth)
     fprintf(outDotFile, "node%p;\n", node);
 
     if (node->left != nullptr) fprintf(outDotFile, "node%p:<left>->", node);
-    TreeGraphicDump(node->left, outDotFile, depth + 1);
+    TreeGraphicDump(node->left, outDotFile);
 
     if (node->right != nullptr) fprintf(outDotFile, "node%p:<right>->", node);
-    TreeGraphicDump(node->right, outDotFile, depth + 1);
+    TreeGraphicDump(node->right, outDotFile);
 }
 
 void TreeTextDump(TreeType* tree, const char* fileName, 
