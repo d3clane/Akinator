@@ -1,7 +1,7 @@
 #include "Akinator.h"
 #include "../Common/Log.h"
 
-static void AkinatorGiveReadenWordDefinition();
+static void AkinatorDefineReadenWord();
 static void AkinatorCompareReadenWords();
 
 int main(const int argc, const char* argv[])
@@ -34,7 +34,7 @@ int main(const int argc, const char* argv[])
                 AkinatorGuessMode();
                 break;
             case 'd':
-                AkinatorGiveReadenWordDefinition();
+                AkinatorDefineReadenWord();
                 break;
             case 'c':
                 AkinatorCompareReadenWords();
@@ -56,7 +56,7 @@ int main(const int argc, const char* argv[])
     }
 }
 
-static void AkinatorGiveReadenWordDefinition()
+static void AkinatorDefineReadenWord()
 {
     static const size_t maxWordLength  = 256;
     static char    word[maxWordLength] =  "";
