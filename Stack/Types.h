@@ -15,7 +15,7 @@ typedef int ElemType;
 #define ElemTypeFormat "%d"
 
 /// @brief Chosen POISON value for stack
-static const ElemType POISON = NAN;
+static const ElemType POISON = 0xDEAD;
 
 /// @brief Function for checking if two ElemType values are equal 
 /// @param [in]a first value
