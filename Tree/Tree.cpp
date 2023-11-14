@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "Tree.h"
-#include "Log.h"
+#include "../Common/Log.h"
 
 //TODO: TreeVerify
 
@@ -267,10 +267,10 @@ static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg)
 {
     static const size_t maxImgNameLength  = 64;
     static char imgName[maxImgNameLength] = "";
-    snprintf(imgName, maxImgNameLength, "imgs/img_%zu_time_%s.png", imgIndex, __TIME__);
+    snprintf(imgName, maxImgNameLength, "../imgs/img_%zu_time_%s.png", imgIndex, __TIME__);
 
     static const size_t     maxCommandLength  = 128;
-    static char commandName[maxCommandLength] = "";
+    static char commandName[maxCommandLength] =  "";
     snprintf(commandName, maxCommandLength, "dot list.dot -T png -o %s", imgName);
     //TODO: fork + exec
     system(commandName);

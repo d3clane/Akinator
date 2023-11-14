@@ -3,3 +3,4 @@ imgs/
 akinator
 *.html
 *.dot
+*.o
