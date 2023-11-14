@@ -1,6 +1,6 @@
 build/
 imgs/
-akinator
 *.html
 *.dot
 *.o
+Akinator/akinator
