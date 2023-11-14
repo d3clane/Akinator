@@ -9,11 +9,10 @@
 #include <stdio.h>
 
 /// @brief ElemType for stack
-typedef float ElemType;
+typedef int ElemType;
 
 /// @brief Format for printing ElemType
-#undef  ElemTypeFormat
-#define ElemTypeFormat "%f"
+#define ElemTypeFormat "%d"
 
 /// @brief Chosen POISON value for stack
 static const ElemType POISON = NAN;
@@ -24,22 +23,7 @@ static const ElemType POISON = NAN;
 /// @return true if they are equal otherwise false
 static inline bool Equal(const ElemType* const a, const ElemType* const b)
 {
-    assert(a);
-    assert(b);
-
-    int floatClassA = fpclassify(*a);
-    int floatClassB = fpclassify(*b);
-
-    if (floatClassA != FP_NORMAL)
-    {
-        if (floatClassA == floatClassB)
-            return true;
-        return false;
-    }
-    
-    static const ElemType EPS = (ElemType) 1e-7;
-
-    return fabs(*a - *b) < EPS;
+    return a == b;
 }
 
 #endif // TYPES_H
