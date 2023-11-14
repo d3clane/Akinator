@@ -13,8 +13,8 @@ static void AkinatorGuessMode (TreeNodeType* node);
 static void AkinatorNewInfoAdd(TreeNodeType* node);
 static bool CheckAnswer(const char* answer);
 
-static void AkinatorPrintDefinition(const char* const word, StackType* path, 
-                                    const TreeNodeType* beginNode, const int beginPos);
+static void AkinatorPrintDescription(const char* const word, StackType* path, 
+                                     const TreeNodeType* beginNode, const int beginPos);
 
 //TODO: перенести в другой файл
 static void MyFgets(char* string, const size_t maxStringLen, FILE* inStream = stdin);
@@ -160,7 +160,8 @@ void AkinatorGiveDefinition(const char* const word)
         return;
     }
 
-    AkinatorPrintDefinition(word, &path, tree.root, (int)path.size - 1);
+    printf("%s is: ", word);
+    AkinatorPrintDescription(word, &path, tree.root, (int)path.size - 1);
 
     StackDtor(&path);
 }
@@ -208,11 +209,11 @@ void AkinatorCompareWords  (const char* const word1, const char* const word2)
         --edgeIdPath2;
     }
 
-    printf("\nBut ");
-    AkinatorPrintDefinition(word1, &path1, node, edgeIdPath1);
+    printf("\nBut %s is: ", word1);
+    AkinatorPrintDescription(word1, &path1, node, edgeIdPath1);
 
-    printf("And: ");
-    AkinatorPrintDefinition(word2, &path2, node, edgeIdPath2);
+    printf("And %s is: ", word2);
+    AkinatorPrintDescription(word2, &path2, node, edgeIdPath2);
 
     StackDtor(&path1);
     StackDtor(&path2);
@@ -229,14 +230,12 @@ static void MyFgets(char* string, const size_t maxStringLen, FILE* inStream)
     *newLinePos = '\0';
 }
 
-static void AkinatorPrintDefinition(const char* const word, StackType* path, 
-                                    const TreeNodeType* beginNode, const int beginPos)
+static void AkinatorPrintDescription(const char* const word, StackType* path, 
+                                     const TreeNodeType* beginNode, const int beginPos)
 {
     assert(word);
     assert(path);
     assert(beginPos != -1);
-
-    printf("%s is: ", word);
 
     const TreeNodeType* node = beginNode;
     for (int i = beginPos; i > -1; --i)
