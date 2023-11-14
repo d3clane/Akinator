@@ -2,6 +2,7 @@
 #define TREE_H
 
 #include <stdio.h>
+#include "../Stack/Stack.h"
 
 struct TreeNodeType
 {
@@ -47,4 +48,7 @@ void TreeGraphicDump(TreeType* tree, bool openImg = false);
 void TreeDump(TreeType* tree, const char* fileName,
                               const char* funcName,
                               const int   line);
+
+void TreeGetPath(TreeType* tree, const char* const word, StackType* path);
+
 #endif

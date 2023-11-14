@@ -383,3 +383,35 @@ void TreeDump(TreeType* tree, const char* fileName,
 
     TreeGraphicDump(tree);
 }
+
+void TreeGetPath(TreeType* tree, const char* const word, StackType* path)
+{
+    assert(tree);
+    assert(word);
+    assert(path);
+
+    TreeGetPath(tree->root, word, path);
+}
+
+static bool TreeGetPath(TreeNodeType* node, const char* const word, StackType* path)
+{
+    if (node == nullptr)
+        return false;
+
+    if (strcmp(node->value, word) == 0)
+        return true;
+
+    bool found = TreeGetPath(node->left, word, path);
+
+    if (found)
+        StackPush(path, 1);
+    else
+    {
+        found = TreeGetPath(node->right, word, path);
+
+        if (found) 
+            StackPush(path, 0);
+    }
+
+    return found;
+}
