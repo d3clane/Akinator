@@ -49,6 +49,6 @@ void TreeDump(TreeType* tree, const char* fileName,
                               const char* funcName,
                               const int   line);
 
-void TreeGetPath(TreeType* tree, const char* const word, StackType* path);
+bool TreeGetPath(TreeType* tree, const char* const word, StackType* path);
 
 #endif

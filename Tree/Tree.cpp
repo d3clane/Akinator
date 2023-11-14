@@ -25,6 +25,8 @@ static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg);
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 static const char* ReadTreeNodeValue(char* target, const char* source);
 
+static bool TreeGetPath(TreeNodeType* node, const char* const word, StackType* path);
+
 TreeErrors TreeCtor(TreeType* tree, size_t treeSize, TreeNodeType* root)
 {
     assert(tree);
@@ -384,13 +386,13 @@ void TreeDump(TreeType* tree, const char* fileName,
     TreeGraphicDump(tree);
 }
 
-void TreeGetPath(TreeType* tree, const char* const word, StackType* path)
+bool TreeGetPath(TreeType* tree, const char* const word, StackType* path)
 {
     assert(tree);
     assert(word);
     assert(path);
 
-    TreeGetPath(tree->root, word, path);
+    return TreeGetPath(tree->root, word, path);
 }
 
 static bool TreeGetPath(TreeNodeType* node, const char* const word, StackType* path)
