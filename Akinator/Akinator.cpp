@@ -93,7 +93,7 @@ static void AkinatorNewInfoAdd(TreeNodeType* node)
     assert(node);
     assert(node->left  == nullptr);
     assert(node->right == nullptr);
-
+    
     static const size_t maxAnswerLength  = 128;
     static char  answer[maxAnswerLength] =  "";
 
