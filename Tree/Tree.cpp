@@ -5,6 +5,7 @@
 #include "Tree.h"
 #include "../Common/Log.h"
 #include "../Common/InputOutputFuncs.h"
+#include "../Common/StringFuncs.h"
 
 static TreeErrors TreePrintPrefixFormat (const TreeNodeType* node, FILE* outStream);
 static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr);
@@ -176,9 +177,11 @@ TreeErrors TreePrintPrefixFormat(const TreeType* tree, FILE* outStream)
     
     TREE_CHECK(tree);
 
-    TreePrintPrefixFormat(tree->root, outStream);
+    TreeErrors err = TreePrintPrefixFormat(tree->root, outStream);
 
     PRINT(outStream, "\n");
+
+    return err;
 }
 
 static TreeErrors TreePrintPrefixFormat(const TreeNodeType* node, FILE* outStream)
@@ -188,17 +191,21 @@ static TreeErrors TreePrintPrefixFormat(const TreeNodeType* node, FILE* outStrea
     if (node == nullptr)
     {
         PRINT(outStream, "nil ");
-        return;
+        return TreeErrors::NO_ERR;
     }
 
     PRINT(outStream, "(");
 
     PRINT(outStream, "\"%s\" ", node->value);
 
-    TreePrintPrefixFormat(node->left, outStream);
-    TreePrintPrefixFormat(node->right, outStream);
+    TreeErrors err = TreeErrors::NO_ERR;
+
+    err = TreePrintPrefixFormat(node->left, outStream);
+    err = TreePrintPrefixFormat(node->right, outStream);
 
     PRINT(outStream, ")");
+    
+    return err;
 }
 
 #undef PRINT
@@ -212,10 +219,8 @@ TreeErrors TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
     size_t inputTreeSize = 0;
     getline(&inputTree, &inputTreeSize, inStream);
 
-    //TODO: обработчик ошибки
-
     if (inputTree == nullptr)
-        return;
+        return TreeErrors::MEM_ERR;
 
     const char* inputTreeEndPtr = inputTree;
     tree->root = TreeReadPrefixFormat(inputTree, &inputTreeEndPtr);
@@ -223,6 +228,8 @@ TreeErrors TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
     TREE_CHECK(tree);
 
     free(inputTree);
+
+    return TreeErrors::NO_ERR;
 }
 
 //TODO: TreeReadPrefixFormat2, которая не пользуется getline
