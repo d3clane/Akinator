@@ -38,7 +38,7 @@ AkinatorErrors AkinatorLoad()
     if (dataFile == nullptr)
         return AkinatorErrors::NO_DATA_BASE;
 
-    TreeReadPrefixFormatFast(&tree, dataFile);
+    TreeReadPrefixFormat(&tree, dataFile);
 
     TREE_DUMP(&tree);
 
@@ -61,7 +61,7 @@ static void AkinatorGuessMode(TreeNodeType* node)
     static const size_t maxStringLength  =  5;
     static char  answer[maxStringLength] = "";
 
-    if (node->left == nullptr || node->right == nullptr) //вообще достаточно проверять одно, если нет бага в построении
+    if (node->left == nullptr || node->right == nullptr)
     {
         MyFgets(answer, maxStringLength, stdin);
         if (strcasecmp(answer, "yes") == 0)
