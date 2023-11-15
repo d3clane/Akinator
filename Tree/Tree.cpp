@@ -8,7 +8,8 @@
 
 //TODO: TreeVerify
 
-static void TreePrintPrefixFormat (TreeNodeType* node, FILE* outStream);
+static void TreePrintPrefixFormat (const TreeNodeType* node, FILE* outStream);
+static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr);
 
 static void TreeNodeDtor(TreeNodeType* node);
 static void TreeDtor    (TreeNodeType* node);
@@ -17,16 +18,16 @@ static void TreeNodeInit(TreeNodeType* node, const char* value,
                                              TreeNodeType* left, 
                                              TreeNodeType* right);
 
-static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr);
-
-static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile);
-static void TreeGraphicDump   (TreeNodeType* node, FILE* outDotFile);
+static void DotFileCreateNodes(const TreeNodeType* node, FILE* outDotFile);
+static void TreeGraphicDump   (const TreeNodeType* node, FILE* outDotFile);
 static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg);
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 static const char* ReadTreeNodeValue(char* target, const char* source);
 
-static bool TreeGetPath(TreeNodeType* node, const char* const word, StackType* path);
+static bool TreeGetPath(const TreeNodeType* node, const char* const word, StackType* path);
+
+static TreeErrors TreeVerify(const TreeNodeType* node);
 
 TreeErrors TreeCtor(TreeType* tree, size_t treeSize, TreeNodeType* root)
 {
@@ -129,38 +130,42 @@ static void TreeNodeDtor(TreeNodeType* node)
     free(node);
 }
 
-void TreePrintPrefixFormat(TreeType* tree, FILE* outStream)
+#define PRINT(outStream, ...)                          \
+do                                                     \
+{                                                      \
+    if (outStream) fprintf(outStream, __VA_ARGS__);    \
+    Log(__VA_ARGS__);                                  \
+} while (0)
+
+void TreePrintPrefixFormat(const TreeType* tree, FILE* outStream)
 {
     assert(tree);
     
     TreePrintPrefixFormat(tree->root, outStream);
 
-    if (outStream) fprintf(outStream, "\n");
-                   Log    (           "\n");
+    PRINT(outStream, "\n");
 }
 
-static void TreePrintPrefixFormat(TreeNodeType* node, FILE* outStream)
+static void TreePrintPrefixFormat(const TreeNodeType* node, FILE* outStream)
 {
     if (node == nullptr)
     {
-        if (outStream) fprintf(outStream, "nil ");
-                       Log    (           "nil "); //not in if
+        PRINT(outStream, "nil ");
         return;
     }
-    if (outStream) fprintf(outStream, "(");
-                   Log    (           "("); //not in if
 
-    if (outStream) fprintf(outStream, "\"%s\" ", node->value);
-                   Log    (           "\"%s\" ", node->value); //not in if
+    PRINT(outStream, "(");
+
+    PRINT(outStream, "\"%s\" ", node->value);
 
     TreePrintPrefixFormat(node->left, outStream);
     TreePrintPrefixFormat(node->right, outStream);
 
-    if (outStream) fprintf(outStream, ")");
-                   Log    (           ")"); //not in if
+    PRINT(outStream, ")");
 }
 
-//TODO: renaming
+#undef PRINT
+
 void TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
 {
     assert(tree);
@@ -181,6 +186,8 @@ void TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
     free(inputTree);
 }
 
+
+//TODO: TreeReadPrefixFormat2, которая не пользуется getline
 static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr)
 {
     assert(string);
@@ -274,7 +281,6 @@ static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg)
     static const size_t     maxCommandLength  = 128;
     static char commandName[maxCommandLength] =  "";
     snprintf(commandName, maxCommandLength, "dot list.dot -T png -o %s", imgName);
-    //TODO: fork + exec
     system(commandName);
 
     snprintf(commandName, maxCommandLength, "<img src = \"%s\">\n", imgName);    
@@ -297,7 +303,7 @@ static inline void DotFileEnd(FILE* outDotFile)
     fprintf(outDotFile, "\n}\n");
 }
 
-void TreeGraphicDump(TreeType* tree, bool openImg)
+void TreeGraphicDump(const TreeType* tree, bool openImg)
 {
     assert(tree);
 
@@ -322,7 +328,7 @@ void TreeGraphicDump(TreeType* tree, bool openImg)
     imgIndex++;
 }
 
-static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile)
+static void DotFileCreateNodes(const TreeNodeType* node, FILE* outDotFile)
 {
     if (node == nullptr)
         return;
@@ -338,7 +344,7 @@ static void DotFileCreateNodes(TreeNodeType* node, FILE* outDotFile)
     DotFileCreateNodes(node->right, outDotFile);
 }
 
-static void TreeGraphicDump(TreeNodeType* node, FILE* outDotFile)
+static void TreeGraphicDump(const TreeNodeType* node, FILE* outDotFile)
 {
     if (node == nullptr)
     {
@@ -355,9 +361,9 @@ static void TreeGraphicDump(TreeNodeType* node, FILE* outDotFile)
     TreeGraphicDump(node->right, outDotFile);
 }
 
-void TreeTextDump(TreeType* tree, const char* fileName, 
-                                  const char* funcName,
-                                  const int   line)
+void TreeTextDump(const TreeType* tree, const char* fileName, 
+                                        const char* funcName,
+                                        const int   line)
 {
     assert(tree);
     assert(fileName);
@@ -372,9 +378,9 @@ void TreeTextDump(TreeType* tree, const char* fileName,
     LOG_END();
 }
 
-void TreeDump(TreeType* tree, const char* fileName,
-                              const char* funcName,
-                              const int   line)
+void TreeDump(const TreeType* tree, const char* fileName,
+                                    const char* funcName,
+                                    const int   line)
 {
     assert(tree);
     assert(fileName);
@@ -385,7 +391,7 @@ void TreeDump(TreeType* tree, const char* fileName,
     TreeGraphicDump(tree);
 }
 
-bool TreeGetPath(TreeType* tree, const char* const word, StackType* path)
+bool TreeGetPath(const TreeType* tree, const char* const word, StackType* path)
 {
     assert(tree);
     assert(word);
@@ -394,7 +400,7 @@ bool TreeGetPath(TreeType* tree, const char* const word, StackType* path)
     return TreeGetPath(tree->root, word, path);
 }
 
-static bool TreeGetPath(TreeNodeType* node, const char* const word, StackType* path)
+static bool TreeGetPath(const TreeNodeType* node, const char* const word, StackType* path)
 {
     if (node == nullptr)
         return false;
@@ -415,4 +421,43 @@ static bool TreeGetPath(TreeNodeType* node, const char* const word, StackType* p
     }
 
     return found;
+}
+
+TreeErrors TreeVerify(const TreeType* tree)
+{
+    assert(tree);
+
+    return TreeVerify(tree->root);
+}
+
+static TreeErrors TreeVerify(const TreeNodeType* node)
+{
+    assert(node);
+
+    TreeErrors err = TreeNodeVerify(node);
+    if (err != TreeErrors::NO_ERR)
+        return err;
+    
+    err = TreeVerify(node->left);
+    if (err != TreeErrors::NO_ERR)
+        return err;
+
+    err = TreeVerify(node->right);
+    return err;
+} 
+
+TreeErrors TreeNodeVerify(const TreeNodeType* node)
+{
+    assert(node);
+
+    if (node->left == node->right)
+        return TreeErrors::DUPLICATE_EDGES;
+    
+    if (node->left == node)
+        return TreeErrors::LOOP;
+    
+    if (node->right == node)
+        return TreeErrors::LOOP;
+
+    return TreeErrors::NO_ERR;
 }
