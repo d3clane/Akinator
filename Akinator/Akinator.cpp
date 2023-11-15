@@ -4,6 +4,7 @@
 
 #include "Akinator.h"
 #include "../Tree/Tree.h"
+#include "../Common/InputOutputFuncs.h"
 
 static const char* const AkinatorDataFile = "AkinatorTree.txt";
 
@@ -26,10 +27,6 @@ do                                     \
     AkinatorSayString(__VA_ARGS__);    \
 } while (0)
 
-
-//TODO: перенести в другой файл
-static void MyFgets(char* string, const size_t maxStringLen, FILE* inStream = stdin);
-
 AkinatorErrors AkinatorLoad()
 {
     TreeCtor(&tree);
@@ -51,9 +48,6 @@ AkinatorErrors AkinatorLoad()
 void AkinatorGuessMode()
 {
     AKINATOR_PRINT_STRING("Programm is going to ask you questions. You should answer yes or no.\n");
-
-    //TODO: обертка в другую функцию, проверка EOF
-    while (getchar() != '\n');
 
     AkinatorGuessMode(tree.root);
 }
@@ -220,7 +214,8 @@ void AkinatorCompareWords  (const char* const word1, const char* const word2)
         --edgeIdPath2;
     }
 
-    AKINATOR_PRINT_STRING("\nBut %s is: ", word1); 
+    printf("\n");
+    AKINATOR_PRINT_STRING("But %s is: ", word1); 
     AkinatorPrintDescription(word1, &path1, node, edgeIdPath1);
 
     AKINATOR_PRINT_STRING("And %s is: ", word2);
@@ -228,17 +223,6 @@ void AkinatorCompareWords  (const char* const word1, const char* const word2)
 
     StackDtor(&path1);
     StackDtor(&path2);
-}
-
-static void MyFgets(char* string, const size_t maxStringLen, FILE* inStream)
-{
-    assert(string);
-    assert(inStream);
-
-    fgets(string, maxStringLen, inStream);
-
-    char* newLinePos = strchr(string, '\n');
-    *newLinePos = '\0';
 }
 
 static void AkinatorPrintDescription(const char* const word, StackType* path, 

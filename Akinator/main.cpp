@@ -1,5 +1,6 @@
 #include "Akinator.h"
 #include "../Common/Log.h"
+#include "../Common/InputOutputFuncs.h"
 
 static void AkinatorDefineReadenWord();
 static void AkinatorCompareReadenWords();
@@ -22,7 +23,7 @@ int main(const int argc, const char* argv[])
         printf("5) q - quit without saving new info\n");
         printf("6) l - quit with saving new info\n");
         
-        int mode = getchar();
+        int mode = GetFirstNotSpaceChar();
 
         bool quitCycle = false;
         switch(mode)
@@ -65,9 +66,6 @@ static void AkinatorDefineReadenWord()
     scanf("%s", word);
 
     AkinatorGiveDefinition(word);
-
-    //TODO: замена на функцию
-    while (getchar() != '\n');
 }
 
 static void AkinatorCompareReadenWords()
@@ -83,7 +81,4 @@ static void AkinatorCompareReadenWords()
     scanf("%s", word2);
 
     AkinatorCompareWords(word1, word2);
-
-    //TODO: замена на функцию
-    while (getchar() != '\n'); 
 }
