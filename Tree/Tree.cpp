@@ -272,15 +272,13 @@ static TreeNodeType* TreeReadPrefixFormat(FILE* inStream)
     TreeNodeType* right = TreeReadPrefixFormat(inStream);
 
     SkipSymbolsUntilStopChar(inStream, ')');
+    getc(inStream);
 
     TreeNodeSetEdges(node, left, right);
 
     return node;
 }
 
-//TODO: renaming noextramemory -> ..., another -> fast
-
-//TODO: TreeReadPrefixFormat2, которая не пользуется getline
 static TreeNodeType* TreeReadPrefixFormatFast(const char* const string, const char** stringEndPtr)
 {
     assert(string);
@@ -355,6 +353,7 @@ static void TreeReadNodeValuePrefixFormat(char* target, FILE* inStream)
 
     if (symbol != '\"')
     {
+        ungetc(symbol, inStream);
         fscanf(inStream, "%s", target);
         return;
     }
