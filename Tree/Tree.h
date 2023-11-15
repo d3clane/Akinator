@@ -42,7 +42,9 @@ TreeErrors TreeNodeSetValue(TreeNodeType* node, const char* value);
 TreeErrors TreeLeafSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 
 TreeErrors TreePrintPrefixFormat(const TreeType* tree, FILE* outStream = stdout);
-TreeErrors TreeReadPrefixFormat (TreeType* tree, FILE* inStream  = stdin);
+
+TreeErrors TreeReadPrefixFormat             (TreeType* tree, FILE* inStream = stdin);
+TreeErrors TreeReadPrefixFormatNoExtraMemory(TreeType* tree, FILE* inStream = stdin);
 
 #define TREE_TEXT_DUMP(tree) TreeTextDump((tree), __FILE__, __func__, __LINE__)
 void TreeTextDump(const TreeType* tree, const char* fileName, 

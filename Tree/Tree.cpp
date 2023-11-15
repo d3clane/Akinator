@@ -9,6 +9,7 @@
 
 static TreeErrors TreePrintPrefixFormat (const TreeNodeType* node, FILE* outStream);
 static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr);
+static TreeNodeType* TreeReadPrefixFormatNoExtraMemory(FILE* inStream);
 
 static void TreeNodeDtor(TreeNodeType* node);
 static void TreeDtor    (TreeNodeType* node);
@@ -22,7 +23,9 @@ static void TreeGraphicDump   (const TreeNodeType* node, FILE* outDotFile);
 static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg);
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
+
 static const char* TreeReadNodeValuePrefixFormat(char* target, const char* source);
+static void TreeReadNodeValuePrefixFormatNoExtraMemory(char* target, FILE* inStream);
 
 static bool TreeGetPath(const TreeNodeType* node, const char* const word, StackType* path);
 
@@ -186,8 +189,6 @@ TreeErrors TreePrintPrefixFormat(const TreeType* tree, FILE* outStream)
 
 static TreeErrors TreePrintPrefixFormat(const TreeNodeType* node, FILE* outStream)
 {
-    NODE_CHECK(node);
-
     if (node == nullptr)
     {
         PRINT(outStream, "nil ");
@@ -231,6 +232,53 @@ TreeErrors TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
 
     return TreeErrors::NO_ERR;
 }
+
+TreeErrors TreeReadPrefixFormatNoExtraMemory(TreeType* tree, FILE* inStream)
+{
+    assert(tree);
+    assert(inStream);
+
+    TREE_CHECK(tree);
+
+    tree->root = TreeReadPrefixFormatNoExtraMemory(inStream);
+
+    return TreeErrors::NO_ERR;
+}
+
+static TreeNodeType* TreeReadPrefixFormatNoExtraMemory(FILE* inStream)
+{
+    assert(inStream);
+
+    SkipSymbolsWhileStatement(inStream, isspace);
+
+    static const size_t       maxInputStringLength  = 128;
+    static char treeNodeValue[maxInputStringLength] =  "";
+
+    TreeNodeType* node = nullptr;
+
+    int symbol = getc(inStream);
+    if (symbol == '(')
+    {
+        TreeReadNodeValuePrefixFormatNoExtraMemory(treeNodeValue, inStream);
+        TreeNodeCtor(&node, treeNodeValue);
+    }
+    else
+    {
+        fscanf(inStream, "%*s");
+        return nullptr;
+    }
+
+    TreeNodeType* left  = TreeReadPrefixFormatNoExtraMemory(inStream);
+    TreeNodeType* right = TreeReadPrefixFormatNoExtraMemory(inStream);
+
+    SkipSymbolsUntilStopChar(inStream, ')');
+
+    TreeNodeSetEdges(node, left, right);
+
+    return node;
+}
+
+//TODO: renaming noextramemory -> ..., another -> fast
 
 //TODO: TreeReadPrefixFormat2, которая не пользуется getline
 static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr)
@@ -291,11 +339,39 @@ static const char* TreeReadNodeValuePrefixFormat(char* target, const char* sourc
     const char* stringEnd = strchr(source + 1, '\"');
     assert(stringEnd != nullptr);
 
+    //TODO: передать ограничение по размеру
     strncpy(target, source + 1, (size_t)(stringEnd - source));
     target[(size_t)(stringEnd - source) - 1] = '\0';
 
-
     return stringEnd + 1;
+}
+
+static void TreeReadNodeValuePrefixFormatNoExtraMemory(char* target, FILE* inStream)
+{
+    assert(target);
+    assert(inStream);
+
+    int symbol = getc(inStream);
+
+    if (symbol != '\"')
+    {
+        fscanf(inStream, "%s", target);
+        return;
+    }
+
+    //TODO: передать ограничение по размеру
+    char* targetPtr = target;
+    while (true)
+    {
+        symbol = getc(inStream);
+
+        if (symbol == EOF || symbol == '\"')
+            break;
+        
+        *targetPtr = (char)symbol;
+        ++targetPtr;
+    }
+    *targetPtr = '\0';
 }
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right)
@@ -480,8 +556,9 @@ TreeErrors TreeVerify(const TreeType* tree)
 
 static TreeErrors TreeVerify(const TreeNodeType* node)
 {
-    assert(node);
-
+    if (node == nullptr)
+        return TreeErrors::NO_ERR;
+    
     TreeErrors err = TreeNodeVerify(node);
     if (err != TreeErrors::NO_ERR)
         return err;
