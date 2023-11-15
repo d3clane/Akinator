@@ -6,9 +6,7 @@
 #include "../Common/Log.h"
 #include "../Common/InputOutputFuncs.h"
 
-//TODO: TreeVerify
-
-static void TreePrintPrefixFormat (const TreeNodeType* node, FILE* outStream);
+static TreeErrors TreePrintPrefixFormat (const TreeNodeType* node, FILE* outStream);
 static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr);
 
 static void TreeNodeDtor(TreeNodeType* node);
@@ -23,11 +21,34 @@ static void TreeGraphicDump   (const TreeNodeType* node, FILE* outDotFile);
 static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg);
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
-static const char* ReadTreeNodeValue(char* target, const char* source);
+static const char* TreeReadNodeValuePrefixFormat(char* target, const char* source);
 
 static bool TreeGetPath(const TreeNodeType* node, const char* const word, StackType* path);
 
 static TreeErrors TreeVerify(const TreeNodeType* node);
+
+#define TREE_CHECK(tree)                       \
+do                                             \
+{                                              \
+    TreeErrors err = TreeVerify(tree);         \
+    if (err != TreeErrors::NO_ERR)             \
+    {                                          \
+        TREE_ERRORS_LOG_ERROR(err);            \
+        return err;                            \
+    }                                          \
+} while (0)
+
+#define NODE_CHECK(node)                       \
+do                                             \
+{                                              \
+    TreeErrors err = TreeNodeVerify(node);     \
+    if (err != TreeErrors::NO_ERR)             \
+    {                                          \
+        TREE_ERRORS_LOG_ERROR(err);            \
+        return err;                            \
+    }                                          \
+} while (0)
+
 
 TreeErrors TreeCtor(TreeType* tree, size_t treeSize, TreeNodeType* root)
 {
@@ -45,6 +66,8 @@ TreeErrors TreeCtor(TreeType* tree, size_t treeSize, TreeNodeType* root)
 
     tree->root = newRoot;
     tree->size = 0;
+
+    TREE_CHECK(tree);
 
     return TreeErrors::NO_ERR;
 }
@@ -64,6 +87,8 @@ TreeErrors TreeNodeSetValue(TreeNodeType* node, const char* value)
 {
     assert(node);
 
+    NODE_CHECK(node);
+
     char* newValueStorage = strdup(value);
 
     if (newValueStorage == nullptr)
@@ -74,6 +99,8 @@ TreeErrors TreeNodeSetValue(TreeNodeType* node, const char* value)
     
     node->value = newValueStorage;
 
+    NODE_CHECK(node);
+
     return TreeErrors::NO_ERR;
 }
 
@@ -83,8 +110,12 @@ TreeErrors TreeLeafSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType
     assert(node->left  == nullptr);
     assert(node->right == nullptr);
 
+    NODE_CHECK(node);
+
     node->left  = left;
     node->right = right;
+
+    NODE_CHECK(node);
 
     return TreeErrors::NO_ERR;
 }
@@ -114,6 +145,8 @@ TreeErrors TreeNodeCtor(TreeNodeType** node, const char* value, TreeNodeType* le
     (*node)->left  =  left;
     (*node)->right = right;
 
+    NODE_CHECK(*node);
+
     return TreeErrors::NO_ERR;
 }
 
@@ -137,17 +170,21 @@ do                                                     \
     Log(__VA_ARGS__);                                  \
 } while (0)
 
-void TreePrintPrefixFormat(const TreeType* tree, FILE* outStream)
+TreeErrors TreePrintPrefixFormat(const TreeType* tree, FILE* outStream)
 {
     assert(tree);
     
+    TREE_CHECK(tree);
+
     TreePrintPrefixFormat(tree->root, outStream);
 
     PRINT(outStream, "\n");
 }
 
-static void TreePrintPrefixFormat(const TreeNodeType* node, FILE* outStream)
+static TreeErrors TreePrintPrefixFormat(const TreeNodeType* node, FILE* outStream)
 {
+    NODE_CHECK(node);
+
     if (node == nullptr)
     {
         PRINT(outStream, "nil ");
@@ -166,7 +203,7 @@ static void TreePrintPrefixFormat(const TreeNodeType* node, FILE* outStream)
 
 #undef PRINT
 
-void TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
+TreeErrors TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
 {
     assert(tree);
     assert(inStream);
@@ -183,9 +220,10 @@ void TreeReadPrefixFormat(TreeType* tree, FILE* inStream)
     const char* inputTreeEndPtr = inputTree;
     tree->root = TreeReadPrefixFormat(inputTree, &inputTreeEndPtr);
 
+    TREE_CHECK(tree);
+
     free(inputTree);
 }
-
 
 //TODO: TreeReadPrefixFormat2, которая не пользуется getline
 static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char** stringEndPtr)
@@ -205,7 +243,7 @@ static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char**
     stringPtr++;
     if (symbol == '(')
     {
-        stringPtr = ReadTreeNodeValue(treeNodeValue, stringPtr);
+        stringPtr = TreeReadNodeValuePrefixFormat(treeNodeValue, stringPtr);
         TreeNodeCtor(&node, treeNodeValue);
     }
     else
@@ -230,7 +268,7 @@ static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char**
     return node;
 }
 
-static const char* ReadTreeNodeValue(char* target, const char* source)
+static const char* TreeReadNodeValuePrefixFormat(char* target, const char* source)
 {
     assert(target);
     assert(source);
@@ -397,13 +435,16 @@ bool TreeGetPath(const TreeType* tree, const char* const word, StackType* path)
     assert(word);
     assert(path);
 
+    if (TreeVerify(tree) != TreeErrors::NO_ERR)
+        return false;
+    
     return TreeGetPath(tree->root, word, path);
 }
 
 static bool TreeGetPath(const TreeNodeType* node, const char* const word, StackType* path)
 {
     if (node == nullptr)
-        return false;
+        return false;   
 
     if (strcmp(node->value, word) == 0)
         return true;
@@ -450,7 +491,7 @@ TreeErrors TreeNodeVerify(const TreeNodeType* node)
 {
     assert(node);
 
-    if (node->left == node->right)
+    if (node->left == node->right && node->left != nullptr)
         return TreeErrors::DUPLICATE_EDGES;
     
     if (node->left == node)
@@ -460,4 +501,33 @@ TreeErrors TreeNodeVerify(const TreeNodeType* node)
         return TreeErrors::LOOP;
 
     return TreeErrors::NO_ERR;
+}
+
+void TreeErrorsLogError(const TreeErrors err, const char* fileName,
+                                              const char* funcName,
+                                              const int   line)
+{
+    assert(fileName);
+    assert(funcName);
+
+    LogBegin(fileName, funcName, line);
+
+    switch(err)
+    {
+        case TreeErrors::DUPLICATE_EDGES:
+            Log("Duplicating edges. Not a tree\n");
+            break;
+        case TreeErrors::LOOP:
+            Log("Loop edges in tree.\n");
+            break;
+        case TreeErrors::MEM_ERR:
+            Log("Error allocating memory\n");
+            break;
+        
+        case TreeErrors::NO_ERR:
+        default:
+            break;
+    }
+
+    LOG_END();
 }

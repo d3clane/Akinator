@@ -41,8 +41,8 @@ TreeErrors TreeNodeVerify(const TreeNodeType* node);
 TreeErrors TreeNodeSetValue(TreeNodeType* node, const char* value);
 TreeErrors TreeLeafSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 
-void TreePrintPrefixFormat(const TreeType* tree, FILE* outStream = stdout);
-void TreeReadPrefixFormat (TreeType* tree, FILE* inStream  = stdin);
+TreeErrors TreePrintPrefixFormat(const TreeType* tree, FILE* outStream = stdout);
+TreeErrors TreeReadPrefixFormat (TreeType* tree, FILE* inStream  = stdin);
 
 #define TREE_TEXT_DUMP(tree) TreeTextDump((tree), __FILE__, __func__, __LINE__)
 void TreeTextDump(const TreeType* tree, const char* fileName, 
@@ -56,5 +56,10 @@ void TreeDump(const TreeType* tree, const char* fileName,
                                     const int   line);
 
 bool TreeGetPath(const TreeType* tree, const char* const word, StackType* path);
+
+#define TREE_ERRORS_LOG_ERROR(err) TreeErrorsLogError(err, __FILE__, __func__, __LINE__);
+void TreeErrorsLogError(const TreeErrors err, const char* fileName,
+                                              const char* funcName,
+                                              const int   line);
 
 #endif
