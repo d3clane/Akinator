@@ -4,6 +4,7 @@
 
 #include "Tree.h"
 #include "../Common/Log.h"
+#include "../Common/InputOutputFuncs.h"
 
 //TODO: TreeVerify
 
@@ -186,9 +187,8 @@ static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char**
 
     const char* stringPtr = string;
 
-    //TODO: обернуть в другую функцию пропуска символов
-    while (isspace(*stringPtr) && *stringPtr != '\0')
-        ++stringPtr;
+    stringPtr = SkipSymbolsWhileStatement(stringPtr, isspace);
+
     static const size_t       maxInputStringLength  = 128;
     static char treeNodeValue[maxInputStringLength] =  "";
 
@@ -214,8 +214,7 @@ static TreeNodeType* TreeReadPrefixFormat(const char* const string, const char**
     TreeNodeType* left  = TreeReadPrefixFormat(stringPtr, &stringPtr);
     TreeNodeType* right = TreeReadPrefixFormat(stringPtr, &stringPtr);
 
-    //TODO: аналогично в функцию мне кажется
-    while (*stringPtr != ')') ++stringPtr;
+    stringPtr = SkipSymbolsUntilStopChar(stringPtr, ')');
     ++stringPtr;
 
     TreeNodeSetEdges(node, left, right);
