@@ -36,36 +36,6 @@ void MyFgets(char* string, const size_t maxStringLen, FILE* inStream)
     *newLinePos = '\0';
 }
 
-const char* SkipSymbolsUntilStopChar(const char* string, const char stopChar)
-{
-    assert(string);
-    
-    const char* stringPtr = string;
-    while (*stringPtr != stopChar && *stringPtr != '\0') 
-        ++stringPtr;
-    
-    if (*stringPtr == '\0')
-        return nullptr;
-
-    return stringPtr;
-}
-
-const char* SkipSymbolsWhileStatement(const char* string, int (*statementFunc)(int))
-{
-    assert(string);
-    assert(statementFunc);
-
-    const char* stringPtr = string;
-
-    while (statementFunc(*stringPtr) && *stringPtr != '\0')
-        ++stringPtr;
-    
-    if (*stringPtr == '\0')
-        return nullptr;
-
-    return stringPtr;
-}
-
 void SkipSymbolsWhileStatement(FILE* inStream, int (*statementFunc)(int))
 {
     assert(inStream);
@@ -94,4 +64,3 @@ void SkipSymbolsUntilStopChar(FILE* inStream, const char stopChar)
     if (readenChar != EOF)
         ungetc(readenChar, inStream);    
 }
-
