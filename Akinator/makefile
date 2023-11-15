@@ -16,11 +16,13 @@ CXXFLAGS = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-l
 TARGET = akinator
 DOXYFILE = Others/Doxyfile
 
-HEADERS  = ../Common/Colors.h ../Common/Errors.h ../Common/Log.h ../Tree/Tree.h			\
+HEADERS  = ../Common/Colors.h ../Common/Errors.h ../Common/Log.h ../Common/InputOutputFuncs.h \
+		   ../Tree/Tree.h																 	  \
 		   ../Stack/Stack.h ../Stack/ArrayFuncs.h ../Stack/HashFuncs.h ../Stack/Types.h \
 		   Akinator.h
 
-FILESCPP = main.cpp ../Common/Errors.cpp ../Common/Log.cpp ../Tree/Tree.cpp  \
+FILESCPP = main.cpp ../Common/Errors.cpp ../Common/Log.cpp ../Common/InputOutputFuncs.cpp \
+			../Tree/Tree.cpp  															  \
 		   ../Stack/Stack.cpp ../Stack/ArrayFuncs.cpp ../Stack/HashFuncs.cpp \
 		   Akinator.cpp
 
