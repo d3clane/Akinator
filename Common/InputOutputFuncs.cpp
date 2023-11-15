@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 
@@ -27,7 +28,7 @@ void MyFgets(char* string, const size_t maxStringLen, FILE* inStream)
     assert(inStream);
 
     fgets(string, maxStringLen, inStream);
-    
+
     if (string[0] == '\n')
         fgets(string, maxStringLen, inStream);
     
@@ -64,3 +65,33 @@ const char* SkipSymbolsWhileStatement(const char* string, int (*statementFunc)(i
 
     return stringPtr;
 }
+
+void SkipSymbolsWhileStatement(FILE* inStream, int (*statementFunc)(int))
+{
+    assert(inStream);
+    assert(statementFunc);
+
+    int readenChar = EOF;
+    do
+    {
+        readenChar = getc(inStream);
+    } while (statementFunc(readenChar) && readenChar != EOF);
+    
+    if (readenChar != EOF)
+        ungetc(readenChar, inStream);
+}
+
+void SkipSymbolsUntilStopChar(FILE* inStream, const char stopChar)
+{
+    assert(inStream);
+
+    int readenChar = EOF;
+    do
+    {
+        readenChar = getc(inStream);
+    } while (readenChar != stopChar && readenChar != EOF);
+    
+    if (readenChar != EOF)
+        ungetc(readenChar, inStream);    
+}
+
