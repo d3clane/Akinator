@@ -27,7 +27,6 @@ enum class TreeErrors
 
     DUPLICATE_EDGES,
     LOOP,
-
 };
 
 TreeErrors TreeCtor(TreeType* tree, size_t treeSize = 1, TreeNodeType* root = nullptr);
@@ -43,8 +42,8 @@ TreeErrors TreeLeafSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType
 
 TreeErrors TreePrintPrefixFormat(const TreeType* tree, FILE* outStream = stdout);
 
-TreeErrors TreeReadPrefixFormat             (TreeType* tree, FILE* inStream = stdin);
-TreeErrors TreeReadPrefixFormatNoExtraMemory(TreeType* tree, FILE* inStream = stdin);
+TreeErrors TreeReadPrefixFormatFast(TreeType* tree, FILE* inStream = stdin);
+TreeErrors TreeReadPrefixFormat    (TreeType* tree, FILE* inStream = stdin);
 
 #define TREE_TEXT_DUMP(tree) TreeTextDump((tree), __FILE__, __func__, __LINE__)
 void TreeTextDump(const TreeType* tree, const char* fileName, 

@@ -38,7 +38,7 @@ AkinatorErrors AkinatorLoad()
     if (dataFile == nullptr)
         return AkinatorErrors::NO_DATA_BASE;
 
-    TreeReadPrefixFormat(&tree, dataFile);
+    TreeReadPrefixFormatFast(&tree, dataFile);
 
     TREE_DUMP(&tree);
 
