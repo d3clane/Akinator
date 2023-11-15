@@ -6,6 +6,8 @@
 #include "../Tree/Tree.h"
 #include "../Common/InputOutputFuncs.h"
 
+//TODO: Akinator verify
+
 static const char* const AkinatorDataFile = "AkinatorTree.txt";
 
 //из-за этого не может в одной программе существовать два акинатора, но я честно не понимаю а нафига может понадобиться два акинатора с разными деревьями в одной проге
@@ -93,7 +95,7 @@ static void AkinatorNewInfoAdd(TreeNodeType* node)
     assert(node);
     assert(node->left  == nullptr);
     assert(node->right == nullptr);
-    
+
     static const size_t maxAnswerLength  = 128;
     static char  answer[maxAnswerLength] =  "";
 
