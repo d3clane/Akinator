@@ -2,62 +2,61 @@
 #include "../Common/Log.h"
 #include "../Common/InputOutputFuncs.h"
 
-static void AkinatorDefineReadenWord();
-static void AkinatorCompareReadenWords();
+static AkinatorErrors AkinatorDefineReadenWord();
+static AkinatorErrors AkinatorCompareReadenWords();
 
 int main(const int argc, const char* argv[])
 {
-    setbuf(stdout, nullptr);
     LogOpen(argv[0]);
 
     AkinatorLoad();
 
+    AkinatorErrors err = AkinatorErrors::NO_ERR;
     while (true)
     {
-        printf("Choose mode: \n");
-
-        printf("1) s - show the wise tree of knowledge\n");
-        printf("2) g - guessing mode\n");
-        printf("3) d - giving the definition of the word\n");
-        printf("4) с - comparing definitions of two word\n");
-        printf("5) q - quit without saving new info\n");
-        printf("6) l - quit with saving new info\n");
+        AkinatorPrintMenu();
         
         int mode = GetFirstNotSpaceChar();
 
         bool quitCycle = false;
+
         switch(mode)
         {
             case 's':
                 AkinatorShowTree();
                 break;
             case 'g':
-                AkinatorGuessMode();
+                err = AkinatorGuessMode();
                 break;
             case 'd':
-                AkinatorDefineReadenWord();
+                err = AkinatorDefineReadenWord();
                 break;
             case 'c':
-                AkinatorCompareReadenWords();
+                err = AkinatorCompareReadenWords();
                 break;
             case 'q':
                 quitCycle = true;
                 break;
             case 'l':
                 quitCycle = true;
-                AkinatorWriteData();
+                err = AkinatorWriteData();
                 break;
             
             default:
                 break;
         }
+
+        if (err != AkinatorErrors::NO_ERR && err != AkinatorErrors::NO_SUCH_WORD_IN_TREE)
+            break;
         
         if (quitCycle)
             break;
     }
+
+    return (int)err;
 }
 
-static void AkinatorDefineReadenWord()
+static AkinatorErrors AkinatorDefineReadenWord()
 {
     static const size_t maxWordLength  = 256;
     static char    word[maxWordLength] =  "";
@@ -65,10 +64,10 @@ static void AkinatorDefineReadenWord()
     printf("Enter the word: ");
     scanf("%s", word);
 
-    AkinatorGiveDefinition(word);
+    return AkinatorGiveDefinition(word);
 }
 
-static void AkinatorCompareReadenWords()
+static AkinatorErrors AkinatorCompareReadenWords()
 {
     static const size_t maxWordLength  = 256;
     static char   word1[maxWordLength] =  "";
@@ -80,5 +79,5 @@ static void AkinatorCompareReadenWords()
     printf("Enter second word: ");
     scanf("%s", word2);
 
-    AkinatorCompareWords(word1, word2);
+    return AkinatorCompareWords(word1, word2);
 }
