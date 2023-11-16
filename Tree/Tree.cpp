@@ -24,8 +24,9 @@ static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg);
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 
-static const char* TreeReadNodeValuePrefixFormatFast(char* target, const char* source);
-static void TreeReadNodeValuePrefixFormat(char* target, FILE* inStream);
+static const char* TreeReadNodeValuePrefixFormatFast(char* target, const size_t maxTargetLength,
+                                                     const char* source);
+static void TreeReadNodeValuePrefixFormat(char* target, const size_t maxTargetLength, FILE* inStream);
 
 static bool TreeGetPath(const TreeNodeType* node, const char* const word, StackType* path);
 
@@ -257,16 +258,14 @@ static TreeNodeType* TreeReadPrefixFormat(FILE* inStream)
     TreeNodeType* node = nullptr;
 
     int symbol = getc(inStream);
-    if (symbol == '(')
-    {
-        TreeReadNodeValuePrefixFormat(treeNodeValue, inStream);
-        TreeNodeCtor(&node, treeNodeValue);
-    }
-    else
+    if (symbol != '(')
     {
         fscanf(inStream, "%*s");
-        return nullptr;
+        return nullptr;     
     }
+
+    TreeReadNodeValuePrefixFormat(treeNodeValue, maxInputStringLength, inStream);
+    TreeNodeCtor(&node, treeNodeValue);
 
     TreeNodeType* left  = TreeReadPrefixFormat(inStream);
     TreeNodeType* right = TreeReadPrefixFormat(inStream);
@@ -294,12 +293,7 @@ static TreeNodeType* TreeReadPrefixFormatFast(const char* const string, const ch
 
     int symbol = *stringPtr;
     stringPtr++;
-    if (symbol == '(')
-    {
-        stringPtr = TreeReadNodeValuePrefixFormatFast(treeNodeValue, stringPtr);
-        TreeNodeCtor(&node, treeNodeValue);
-    }
-    else
+    if (symbol != '(')
     {
         int shift = 0;
         sscanf(stringPtr, "%*s%n", &shift);
@@ -308,6 +302,9 @@ static TreeNodeType* TreeReadPrefixFormatFast(const char* const string, const ch
         *stringEndPtr = stringPtr;
         return nullptr;
     }
+
+    stringPtr = TreeReadNodeValuePrefixFormatFast(treeNodeValue, maxInputStringLength, stringPtr);
+    TreeNodeCtor(&node, treeNodeValue);
 
     TreeNodeType* left  = TreeReadPrefixFormatFast(stringPtr, &stringPtr);
     TreeNodeType* right = TreeReadPrefixFormatFast(stringPtr, &stringPtr);
@@ -321,30 +318,33 @@ static TreeNodeType* TreeReadPrefixFormatFast(const char* const string, const ch
     return node;
 }
 
-static const char* TreeReadNodeValuePrefixFormatFast(char* target, const char* source)
+static const char* TreeReadNodeValuePrefixFormatFast(char* target, const size_t maxTargetLength, 
+                                                     const char* source)
 {
     assert(target);
     assert(source);
 
     if (*source != '\"')
     {
+        int numberOfSpaces = 0;
         int shift = 0;
-        sscanf(source, "%s%n", target, &shift);
+        sscanf(source, "%n%s%n", &numberOfSpaces, target, &shift);
+        assert(shift <= (int)maxTargetLength + numberOfSpaces);
 
         return source + shift;
     }
 
     const char* stringEnd = strchr(source + 1, '\"');
     assert(stringEnd != nullptr);
+    assert((size_t)(stringEnd - source) <= maxTargetLength);
 
-    //TODO: передать ограничение по размеру
     strncpy(target, source + 1, (size_t)(stringEnd - source));
     target[(size_t)(stringEnd - source) - 1] = '\0';
 
     return stringEnd + 1;
 }
 
-static void TreeReadNodeValuePrefixFormat(char* target, FILE* inStream)
+static void TreeReadNodeValuePrefixFormat(char* target, const size_t maxTargetLength, FILE* inStream)
 {
     assert(target);
     assert(inStream);
@@ -358,19 +358,21 @@ static void TreeReadNodeValuePrefixFormat(char* target, FILE* inStream)
         return;
     }
 
-    //TODO: передать ограничение по размеру
-    char* targetPtr = target;
+    size_t i = 0;
     while (true)
     {
+        assert(i < maxTargetLength);
+
         symbol = getc(inStream);
 
         if (symbol == EOF || symbol == '\"')
             break;
         
-        *targetPtr = (char)symbol;
-        ++targetPtr;
+        target[i]  = (char)symbol;
+        ++i;
     }
-    *targetPtr = '\0';
+
+    target[i] = '\0';
 }
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right)
