@@ -142,7 +142,9 @@ static bool CheckAnswer(const char* answer)
 {
     assert(answer);
 
-    return (strcasestr(answer, "doesn't") == nullptr) && (strcasestr(answer, "don't") == nullptr);
+    return (strcasestr(answer, "doesn't") == nullptr) && 
+           (strcasestr(answer, "don't")   == nullptr) &&
+           (strcasestr(answer, "not")     == nullptr);
 }
 
 AkinatorErrors AkinatorWriteData(AkinatorType* akinator)
