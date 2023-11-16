@@ -12,7 +12,7 @@ int main(const int argc, const char* argv[])
     LogOpen(argv[0]);
 
     AkinatorType akinator = {};
-    AkinatorLoad(&akinator); //TODO: rename ctor
+    AkinatorLoad(&akinator);
 
     AkinatorErrors err = AkinatorErrors::NO_ERR;
     while (true)

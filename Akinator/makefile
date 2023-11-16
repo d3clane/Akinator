@@ -20,12 +20,14 @@ HEADERS  = ../Common/Colors.h ../Common/Errors.h ../Common/Log.h  						\
 		   ../Common/InputOutputFuncs.h ../Common/StringFuncs.h							\
 		   ../Tree/Tree.h															    \
 		   ../Stack/Stack.h ../Stack/ArrayFuncs.h ../Stack/HashFuncs.h ../Stack/Types.h \
+		   ../FastInput/InputOutput.h ../FastInput/StringFuncs.h 						\
 		   Akinator.h
 
 FILESCPP = main.cpp ../Common/Errors.cpp ../Common/Log.cpp 		  					\
 		   ../Common/InputOutputFuncs.cpp ../Common/StringFuncs.cpp 				\
 		   ../Tree/Tree.cpp  													    \
 		   ../Stack/Stack.cpp ../Stack/ArrayFuncs.cpp ../Stack/HashFuncs.cpp 		\
+		   ../FastInput/InputOutput.cpp ../FastInput/StringFuncs.cpp				\
 		   Akinator.cpp
 
 objects = $(FILESCPP:%.cpp=%.o)

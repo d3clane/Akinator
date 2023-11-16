@@ -5,6 +5,7 @@
 #include "Akinator.h"
 #include "../Tree/Tree.h"
 #include "../Common/InputOutputFuncs.h"
+#include "../Common/Colors.h"
 
 static const char* const AkinatorDataFile = "AkinatorTree.txt";
 
@@ -292,14 +293,16 @@ static void AkinatorSayString(const char* format, ...)
 
 void AkinatorPrintMenu()
 {
+    printf(CYANTEXT);
     printf("Choose mode: \n");
 
-    printf("1) s - show the wise akinator->tree of knowledge\n");
-    printf("2) g - guessing mode\n");
-    printf("3) d - giving the definition of the word\n");
-    printf("4) с - comparing definitions of two word\n");
-    printf("5) q - quit without saving new info\n");
-    printf("6) l - quit with saving new info\n");
+    printf("1) " GREENTEXT "s" CYANTEXT " - show the wise tree of knowledge\n");
+    printf("2) " GREENTEXT "g" CYANTEXT " - guessing mode\n");
+    printf("3) " GREENTEXT "d" CYANTEXT " - giving the definition of the word\n");
+    printf("4) " GREENTEXT "c" CYANTEXT " - comparing definitions of two word\n");
+    printf("5) " GREENTEXT "q" CYANTEXT " - quit without saving new info\n");
+    printf("6) " GREENTEXT "l" CYANTEXT " - quit with saving new info\n");
+    printf(STDTEXT);
 }
 
 AkinatorErrors AkinatorVerify(AkinatorType* akinator)

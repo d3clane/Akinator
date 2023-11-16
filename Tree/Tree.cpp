@@ -6,10 +6,17 @@
 #include "../Common/Log.h"
 #include "../Common/InputOutputFuncs.h"
 #include "../Common/StringFuncs.h"
+#include "../FastInput/InputOutput.h"
 
-static TreeErrors TreePrintPrefixFormat (const TreeNodeType* node, FILE* outStream);
+static TreeErrors TreeVerify(const TreeNodeType* node);
+
+static TreeErrors    TreePrintPrefixFormat (const TreeNodeType* node, FILE* outStream);
 static TreeNodeType* TreeReadPrefixFormatFast(const char* const string, const char** stringEndPtr);
+static const char*   TreeReadNodeValuePrefixFormatFast(char* target, const size_t maxTargetLength,
+                                                       const char* source);
 static TreeNodeType* TreeReadPrefixFormat(FILE* inStream);
+static void          TreeReadNodeValuePrefixFormat(char* target, const size_t maxTargetLength, 
+                                                   FILE* inStream);
 
 static void TreeNodeDtor(TreeNodeType* node);
 static void TreeDtor    (TreeNodeType* node);
@@ -24,13 +31,7 @@ static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg);
 
 static inline void TreeNodeSetEdges(TreeNodeType* node, TreeNodeType* left, TreeNodeType* right);
 
-static const char* TreeReadNodeValuePrefixFormatFast(char* target, const size_t maxTargetLength,
-                                                     const char* source);
-static void TreeReadNodeValuePrefixFormat(char* target, const size_t maxTargetLength, FILE* inStream);
-
 static bool TreeGetPath(const TreeNodeType* node, const char* const word, StackType* path);
-
-static TreeErrors TreeVerify(const TreeNodeType* node);
 
 #define TREE_CHECK(tree)                       \
 do                                             \
@@ -53,7 +54,6 @@ do                                             \
         return err;                            \
     }                                          \
 } while (0)
-
 
 TreeErrors TreeCtor(TreeType* tree, TreeNodeType* root)
 {
@@ -213,9 +213,7 @@ TreeErrors TreeReadPrefixFormatFast(TreeType* tree, FILE* inStream)
     assert(tree);
     assert(inStream);
 
-    char* inputTree      = nullptr;
-    size_t inputTreeSize = 0;
-    getline(&inputTree, &inputTreeSize, inStream);
+    char* inputTree = ReadText(inStream);
 
     if (inputTree == nullptr)
         return TreeErrors::MEM_ERR;
