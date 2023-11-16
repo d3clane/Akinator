@@ -8,7 +8,7 @@
 
 static const char* const AkinatorDataFile = "AkinatorTree.txt";
 
-static TreeType tree = {.root = nullptr, .size = 0};
+static TreeType tree = {.root = nullptr};
 
 static void AkinatorGuessMode (TreeNodeType* node);
 static bool CheckAnswer(const char* answer);

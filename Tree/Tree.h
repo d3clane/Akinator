@@ -15,8 +15,6 @@ struct TreeNodeType
 struct TreeType
 {
     TreeNodeType* root;
-    
-    size_t size;
 }; 
 
 enum class TreeErrors
@@ -29,7 +27,7 @@ enum class TreeErrors
     LOOP,
 };
 
-TreeErrors TreeCtor(TreeType* tree, size_t treeSize = 1, TreeNodeType* root = nullptr);
+TreeErrors TreeCtor(TreeType* tree, TreeNodeType* root = nullptr);
 TreeErrors TreeDtor(TreeType* tree);
 
 TreeErrors TreeNodeCtor(TreeNodeType** node, const char* value, TreeNodeType* left  = nullptr, 

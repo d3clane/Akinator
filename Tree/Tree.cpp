@@ -55,22 +55,19 @@ do                                             \
 } while (0)
 
 
-TreeErrors TreeCtor(TreeType* tree, size_t treeSize, TreeNodeType* root)
+TreeErrors TreeCtor(TreeType* tree, TreeNodeType* root)
 {
     assert(tree);
 
     if (root != nullptr)
     {
         tree->root = root;
-        tree->size = treeSize;
-
         return TreeErrors::NO_ERR;
     }
 
     TreeNodeType* newRoot = nullptr;
 
     tree->root = newRoot;
-    tree->size = 0;
 
     TREE_CHECK(tree);
 
@@ -83,7 +80,6 @@ TreeErrors TreeDtor(TreeType* tree)
 
     TreeDtor(tree->root);
     tree->root = nullptr;
-    tree->size = 0;
 
     return TreeErrors::NO_ERR;
 }
