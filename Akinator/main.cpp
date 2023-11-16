@@ -7,6 +7,8 @@ static AkinatorErrors AkinatorCompareReadenWords();
 
 int main(const int argc, const char* argv[])
 {
+    setbuf(stdout, nullptr);
+
     LogOpen(argv[0]);
 
     AkinatorLoad();
@@ -53,6 +55,8 @@ int main(const int argc, const char* argv[])
             break;
     }
 
+    AkinatorDtor();
+    
     return (int)err;
 }
 
