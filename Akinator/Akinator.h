@@ -1,6 +1,8 @@
 #ifndef AKINATOR_H
 #define AKINATOR_H
 
+#include "../Tree/Tree.h"
+
 enum class AkinatorErrors
 {
     NO_ERR,
@@ -13,19 +15,24 @@ enum class AkinatorErrors
     
 };
 
-void AkinatorShowTree();
+struct AkinatorType
+{
+    TreeType tree;
+};
 
-AkinatorErrors AkinatorLoad();
+void AkinatorShowTree(AkinatorType* akinator);
 
-AkinatorErrors AkinatorGuessMode();
+AkinatorErrors AkinatorLoad(AkinatorType* akinator);
 
-AkinatorErrors AkinatorGiveDefinition(const char* const word);
-AkinatorErrors AkinatorCompareWords  (const char* const word1, const char* const word2);
-AkinatorErrors AkinatorVerify();
+AkinatorErrors AkinatorGuessMode(AkinatorType* akinator);
 
-AkinatorErrors AkinatorWriteData();
+AkinatorErrors AkinatorGiveDefinition(AkinatorType* akinator, const char* const word);
+AkinatorErrors AkinatorCompareWords  (AkinatorType* akinator, const char* const word1, const char* const word2);
+AkinatorErrors AkinatorVerify(AkinatorType* akinator);
 
-void AkinatorDtor();
+AkinatorErrors AkinatorWriteData(AkinatorType* akinator);
+
+void AkinatorDtor(AkinatorType* akinator);
 
 void AkinatorPrintMenu();
 

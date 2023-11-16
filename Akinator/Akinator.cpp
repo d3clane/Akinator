@@ -8,8 +8,6 @@
 
 static const char* const AkinatorDataFile = "AkinatorTree.txt";
 
-static TreeType tree = {.root = nullptr};
-
 static void AkinatorGuessMode (TreeNodeType* node);
 static bool CheckAnswer(const char* answer);
 
@@ -27,26 +25,26 @@ do                                     \
     AkinatorSayString(__VA_ARGS__);    \
 } while (0)
 
-#define AKINATOR_CHECK()                    \
-do                                          \
-{                                           \
-    AkinatorErrors err = AkinatorVerify();  \
-    if (err != AkinatorErrors::NO_ERR)      \
-        return err;                         \
+#define AKINATOR_CHECK()                            \
+do                                                  \
+{                                                   \
+    AkinatorErrors err = AkinatorVerify(akinator);  \
+    if (err != AkinatorErrors::NO_ERR)              \
+        return err;                                 \
 } while (0)
 
-AkinatorErrors AkinatorLoad()
+AkinatorErrors AkinatorLoad(AkinatorType* akinator)
 {
-    TreeCtor(&tree);
+    TreeCtor(&akinator->tree);
 
     FILE* dataFile = fopen(AkinatorDataFile, "r");
 
     if (dataFile == nullptr)
         return AkinatorErrors::NO_DATA_BASE;
 
-    TreeReadPrefixFormat(&tree, dataFile);
+    TreeReadPrefixFormat(&akinator->tree, dataFile);
 
-    TREE_DUMP(&tree);
+    TREE_DUMP(&akinator->tree);
 
     fclose(dataFile);
 
@@ -55,13 +53,13 @@ AkinatorErrors AkinatorLoad()
     return AkinatorErrors::NO_ERR;
 }
 
-AkinatorErrors AkinatorGuessMode()
+AkinatorErrors AkinatorGuessMode(AkinatorType* akinator)
 {
     AKINATOR_CHECK();
 
     AKINATOR_PRINT_STRING("Programm is going to ask you questions. You should answer yes or no.\n");
 
-    AkinatorGuessMode(tree.root);
+    AkinatorGuessMode(akinator->tree.root);
 
     return AkinatorErrors::NO_ERR;
 }
@@ -108,8 +106,6 @@ static AkinatorErrors AkinatorAddNewInfo(TreeNodeType* node)
     assert(node->left  == nullptr);
     assert(node->right == nullptr);
 
-    AKINATOR_CHECK();
-
     static const size_t maxAnswerLength  = 128;
     static char  answer[maxAnswerLength] =  "";
 
@@ -149,25 +145,24 @@ static bool CheckAnswer(const char* answer)
     return (strcasestr(answer, "doesn't") == nullptr) && (strcasestr(answer, "don't") == nullptr);
 }
 
-AkinatorErrors AkinatorWriteData()
+AkinatorErrors AkinatorWriteData(AkinatorType* akinator)
 {
-    AKINATOR_CHECK();
     FILE* dataFile = fopen(AkinatorDataFile, "w");
 
     if (dataFile == nullptr)
         return AkinatorErrors::NO_DATA_BASE;
     
-    TreePrintPrefixFormat(&tree, dataFile);
+    TreePrintPrefixFormat(&akinator->tree, dataFile);
 
     return AkinatorErrors::NO_ERR;
 }
 
-void AkinatorShowTree()
+void AkinatorShowTree(AkinatorType* akinator)
 {
-    TreeGraphicDump(&tree, true);
+    TreeGraphicDump(&akinator->tree, true);
 }
 
-AkinatorErrors AkinatorGiveDefinition(const char* const word)
+AkinatorErrors AkinatorGiveDefinition(AkinatorType* akinator, const char* const word)
 {
     assert(word);
 
@@ -176,7 +171,7 @@ AkinatorErrors AkinatorGiveDefinition(const char* const word)
     StackType path;
     StackCtor(&path);
 
-    bool found = TreeGetPath(&tree, word, &path);
+    bool found = TreeGetPath(&akinator->tree, word, &path);
 
     if (!found)
     {
@@ -185,14 +180,14 @@ AkinatorErrors AkinatorGiveDefinition(const char* const word)
     }
 
     AKINATOR_PRINT_STRING("%s is: ", word);
-    AkinatorPrintDescription(word, &path, tree.root, (int)path.size - 1);
+    AkinatorPrintDescription(word, &path, akinator->tree.root, (int)path.size - 1);
 
     StackDtor(&path);
 
     return AkinatorErrors::NO_ERR;
 }
 
-AkinatorErrors AkinatorCompareWords(const char* const word1, const char* const word2)
+AkinatorErrors AkinatorCompareWords(AkinatorType* akinator, const char* const word1, const char* const word2)
 {
     assert(word1);
     assert(word2);
@@ -203,12 +198,12 @@ AkinatorErrors AkinatorCompareWords(const char* const word1, const char* const w
     StackCtor(&path1);
     StackCtor(&path2);
 
-    bool found  = TreeGetPath(&tree, word1, &path1);
-         found |= TreeGetPath(&tree, word2, &path2);
+    bool found  = TreeGetPath(&akinator->tree, word1, &path1);
+         found |= TreeGetPath(&akinator->tree, word2, &path2);
 
     if (!found)
     {
-        AKINATOR_PRINT_STRING("Some words can't be found in my tree of wisdom. Can't compare.\n");
+        AKINATOR_PRINT_STRING("Some words can't be found in my akinator->tree of wisdom. Can't compare.\n");
         return AkinatorErrors::NO_SUCH_WORD_IN_TREE;
     }
 
@@ -220,7 +215,7 @@ AkinatorErrors AkinatorCompareWords(const char* const word1, const char* const w
     else
         AKINATOR_PRINT_STRING("%s and %s are: ", word1, word2);
 
-    TreeNodeType* node = tree.root;
+    TreeNodeType* node = akinator->tree.root;
     while (path1.data[edgeIdPath1] == path2.data[edgeIdPath2])
     {
         if (path1.data[edgeIdPath1] == 0)
@@ -256,8 +251,6 @@ static AkinatorErrors AkinatorPrintDescription(const char* const word, StackType
     assert(word);
     assert(path);
     assert(beginPos != -1);
-
-    AKINATOR_CHECK();
 
     const TreeNodeType* node = beginNode;
     for (int i = beginPos; i > -1; --i)
@@ -299,7 +292,7 @@ void AkinatorPrintMenu()
 {
     printf("Choose mode: \n");
 
-    printf("1) s - show the wise tree of knowledge\n");
+    printf("1) s - show the wise akinator->tree of knowledge\n");
     printf("2) g - guessing mode\n");
     printf("3) d - giving the definition of the word\n");
     printf("4) с - comparing definitions of two word\n");
@@ -307,12 +300,12 @@ void AkinatorPrintMenu()
     printf("6) l - quit with saving new info\n");
 }
 
-AkinatorErrors AkinatorVerify()
+AkinatorErrors AkinatorVerify(AkinatorType* akinator)
 {
-    if (tree.root == nullptr)
+    if (akinator->tree.root == nullptr)
         return AkinatorErrors::TREE_IS_NULLPTR;
 
-    return AkinatorVerify(tree.root);
+    return AkinatorVerify(akinator->tree.root);
 }
 
 static AkinatorErrors AkinatorVerify(TreeNodeType* node)
@@ -333,7 +326,7 @@ static AkinatorErrors AkinatorVerify(TreeNodeType* node)
     return error;
 }
 
-void AkinatorDtor()
+void AkinatorDtor(AkinatorType* akinator)
 {
-    TreeDtor(&tree);
+    TreeDtor(&akinator->tree);
 }
