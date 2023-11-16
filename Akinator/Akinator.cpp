@@ -13,7 +13,7 @@ static TreeType tree = {.root = nullptr, .size = 0};
 static void AkinatorGuessMode (TreeNodeType* node);
 static bool CheckAnswer(const char* answer);
 
-static AkinatorErrors AkinatorNewInfoAdd(TreeNodeType* node);
+static AkinatorErrors AkinatorAddNewInfo(TreeNodeType* node);
 static AkinatorErrors AkinatorPrintDescription(const char* const word, StackType* path, 
                                                const TreeNodeType* beginNode, const int beginPos);
 
@@ -79,7 +79,7 @@ static void AkinatorGuessMode(TreeNodeType* node)
         if (strcasecmp(answer, "yes") == 0)
             AKINATOR_PRINT_STRING("SOSAMBA\n");
         else
-            AkinatorNewInfoAdd(node);
+            AkinatorAddNewInfo(node);
         
         return;
     }
@@ -102,7 +102,7 @@ static void AkinatorGuessMode(TreeNodeType* node)
     }
 }
 
-static AkinatorErrors AkinatorNewInfoAdd(TreeNodeType* node)
+static AkinatorErrors AkinatorAddNewInfo(TreeNodeType* node)
 {
     assert(node);
     assert(node->left  == nullptr);
@@ -124,8 +124,8 @@ static AkinatorErrors AkinatorNewInfoAdd(TreeNodeType* node)
 
     while (true)
     {
-        AKINATOR_PRINT_STRING("How differs from %s?\n"
-               "In your answer you shouldn't use doesn't / don't\n", node->value);
+        AKINATOR_PRINT_STRING("How differs from %s?\n", node->value);
+        AKINATOR_PRINT_STRING("In your answer you shouldn't use doesn't or don't\n");
         MyFgets(answer, maxAnswerLength, stdin);
 
         if (CheckAnswer(answer))
@@ -289,6 +289,7 @@ static void AkinatorSayString(const char* format, ...)
     static const size_t sayShift = 4;
 
     vsnprintf(command + sayShift, maxStringLength, format, argList);
+
     system(command);
 
     va_end(argList);
@@ -330,4 +331,9 @@ static AkinatorErrors AkinatorVerify(TreeNodeType* node)
     error = AkinatorVerify(node->right);
 
     return error;
+}
+
+void AkinatorDtor()
+{
+    TreeDtor(&tree);
 }

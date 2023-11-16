@@ -25,6 +25,8 @@ AkinatorErrors AkinatorVerify();
 
 AkinatorErrors AkinatorWriteData();
 
+void AkinatorDtor();
+
 void AkinatorPrintMenu();
 
 
