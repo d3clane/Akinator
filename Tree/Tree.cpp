@@ -411,7 +411,8 @@ static inline void CreateImgInLogFile(const size_t imgIndex, bool openImg)
 
 static inline void DotFileBegin(FILE* outDotFile)
 {
-    fprintf(outDotFile, "digraph G{\nrankdir=TB;\ngraph [bgcolor=\"#31353b\"];\n");
+    fprintf(outDotFile, "digraph G{\nrankdir=TB;\ngraph [bgcolor=\"#31353b\"];\n"
+                        "edge[color=\"#00D0D0\"];\n");
 }
 
 static inline void DotFileEnd(FILE* outDotFile)
@@ -453,7 +454,7 @@ static void DotFileCreateNodes(const TreeNodeType* node, FILE* outDotFile)
                         "[shape=Mrecord, style=filled, fillcolor=\"#7293ba\","
                         "label = \"{ %s |"  
                         "{ <left> yes | <right> no } } \" ," 
-                        "color = \"#008080\"];\n",
+                        "color = \"#D0D000\"];\n",
                         node, node->value); 
 
     DotFileCreateNodes(node->left,  outDotFile);
