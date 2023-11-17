@@ -11,7 +11,8 @@ CXXFLAGS = -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-l
 		   -Wno-missing-field-initializers -Wno-narrowing -Wno-old-style-cast -Wno-varargs 			  \
 		   -Wstack-protector -fcheck-new -fsized-deallocation -fstack-protector -fstrict-overflow 	  \
 		   -flto-odr-type-merging -fno-omit-frame-pointer -Wlarger-than=8192 -Wstack-usage=8192 -pie  \
-		   -fPIE -Werror=vla
+		   -fPIE -Werror=vla -I/Library/Frameworks/SDL2.framework/Headers -F/Library/Frameworks	  	  \
+		   -framework SDL2
 
 TARGET = akinator
 DOXYFILE = Others/Doxyfile
